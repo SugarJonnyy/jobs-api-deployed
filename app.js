@@ -6,13 +6,15 @@ const app = express()
 const asyncWrapper = require('./middlewares/async')
 const errorHandlerMiddleware = require('./middlewares/errorhandler')
 const notFoundMiddleware = require('./middlewares/notFound')
+const connectDB = require('./db/connect')
 
+const authRouter = require('./routes/auth')
+const jobsRouter = require('./routes/jobs')
 
 app.use(express.json())
 
-app.get('/', (req, res)=>{
-    res.send("Jobs")
-})
+app.use('api/v1/auth', authRouter)
+app.use('api/v1/jobs', jobsRouter)
 
 app.use(notFoundMiddleware)
 app.use(errorHandlerMiddleware)
@@ -21,7 +23,8 @@ const port = process.env.PORT
 
 const start = async ()=>{
     try {
-        app.listen(port, (req, res)=>{
+        await connectDB(process.env.MONGO_URI)
+        app.listen(port, ()=>{
             console.log(`Server is listening to the ${port}`);
         })
     } catch (error) {
