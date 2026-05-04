@@ -1,5 +1,12 @@
-const register = (req, res) =>{
-    res.send(`regsitering user`)
+const User = require('../models/User')
+const {StatusCodes} = require('http-status-codes')
+const bcrypt = require('bcryptjs')
+
+const register = async (req, res) =>{
+
+
+    const user = await User.create({...tempUser})
+    res.status(StatusCodes.CREATED).json({user})
 }
 
 const login = (req, res)=>{
