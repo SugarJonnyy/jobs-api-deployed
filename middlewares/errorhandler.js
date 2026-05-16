@@ -19,10 +19,15 @@ if(err.name === 'ValidationError'){
     customError.msg = `Duplicate value for ${Object.keys(err.keyValue)} field, please choose different value`
     customError.statusCode = 400
   }
+  if(err.name==="CastError"){
+    customError.msg = `No id with id: ${err.value}`
+    customError.statusCode = 404
+  }
   // return res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({msg: err}) 
   return res
     .status(customError.statusCode)
     .json({ msg: customError.msg });
+
 };
 
 module.exports = errorHandlerMiddleware;
