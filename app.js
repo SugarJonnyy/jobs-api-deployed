@@ -20,6 +20,7 @@ const authRouter = require('./routes/auth')
 const jobsRouter = require('./routes/jobs')
 
 app.use(express.json())
+app.use(express.static('./public'))
 // security packages
 app.use(rateLimiter({
         windowMs: 15 * 60 * 1000, // 15 minutes
@@ -30,8 +31,8 @@ app.use(rateLimiter({
         // store: ... , // Redis, Memcached, etc. See below.
 }))
 app.use(helmet())
-app.use(cors)
-app.use(xss)
+app.use(cors())
+app.use(xss())
 
 
 app.use('/api/v1/auth', authRouter)

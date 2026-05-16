@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>JobsAPI — Dashboard</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Syne:wght@400;600;700;800&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+
+  <!-- AUTH SCREEN -->
+  <div id="auth-screen" class="screen active">
+    <div class="auth-bg-grid"></div>
+    <div class="auth-container">
+      <div class="auth-brand">
+        <span class="brand-dot"></span>
+        <h1>Jobs<span>API</span></h1>
+        <p class="brand-sub">Track every application. Miss nothing.</p>
+      </div>
+
+      <div class="auth-card">
+        <div class="tab-row">
+          <button class="tab-btn active" id="tab-login" onclick="switchTab('login')">Login</button>
+          <button class="tab-btn" id="tab-register" onclick="switchTab('register')">Register</button>
+          <div class="tab-indicator" id="tab-indicator"></div>
+        </div>
+
+        <!-- Login Form -->
+        <form id="login-form" class="auth-form" onsubmit="handleLogin(event)">
+          <div class="field-group">
+            <label>Email</label>
+            <input type="email" id="login-email" placeholder="you@example.com" required />
+          </div>
+          <div class="field-group">
+            <label>Password</label>
+            <input type="password" id="login-password" placeholder="••••••••" required />
+          </div>
+          <div id="auth-error" class="error-msg hidden"></div>
+          <button type="submit" class="btn-primary" id="auth-submit-btn">
+            <span class="btn-text">Login</span>
+            <span class="btn-loader hidden"></span>
+          </button>
+        </form>
+
+        <!-- Register Form -->
+        <form id="register-form" class="auth-form hidden" onsubmit="handleRegister(event)">
+          <div class="field-group">
+            <label>Name</label>
+            <input type="text" id="reg-name" placeholder="John Doe" required />
+          </div>
+          <div class="field-group">
+            <label>Email</label>
+            <input type="email" id="reg-email" placeholder="you@example.com" required />
+          </div>
+          <div class="field-group">
+            <label>Password</label>
+            <input type="password" id="reg-password" placeholder="Min 6 characters" required minlength="6" />
+          </div>
+          <div id="auth-error-reg" class="error-msg hidden"></div>
+          <button type="submit" class="btn-primary" id="auth-submit-btn-reg">
+            <span class="btn-text">Create Account</span>
+            <span class="btn-loader hidden"></span>
+          </button>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <!-- DASHBOARD SCREEN -->
+  <div id="dashboard-screen" class="screen">
+
+    <!-- Sidebar -->
+    <aside class="sidebar">
+      <div class="sidebar-brand">
+        <span class="brand-dot sm"></span>
+        <span>Jobs<b>API</b></span>
+      </div>
+      <nav class="sidebar-nav">
+        <button class="nav-item active" onclick="showPanel('all')">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
+          All Jobs
+        </button>
+        <button class="nav-item" onclick="showPanel('add')">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+          Add Job
+        </button>
+      </nav>
+      <div class="sidebar-footer">
+        <span id="user-greeting">Hey, —</span>
+        <button class="logout-btn" onclick="logout()">Logout</button>
+      </div>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="main-content">
+
+      <!-- Stats Bar -->
+      <div class="stats-bar">
+        <div class="stat-chip" id="stat-total"><span class="stat-num">0</span><span class="stat-label">Total</span></div>
+        <div class="stat-chip pending"><span class="stat-num" id="stat-pending">0</span><span class="stat-label">Pending</span></div>
+        <div class="stat-chip interview"><span class="stat-num" id="stat-interview">0</span><span class="stat-label">Interview</span></div>
+        <div class="stat-chip declined"><span class="stat-num" id="stat-declined">0</span><span class="stat-label">Declined</span></div>
+      </div>
+
+      <!-- All Jobs Panel -->
+      <div id="panel-all" class="panel active">
+        <div class="panel-header">
+          <h2>Your Applications</h2>
+          <div class="filter-row">
+            <input type="text" id="search-input" placeholder="Search position or company…" oninput="filterJobs()" />
+            <select id="status-filter" onchange="filterJobs()">
+              <option value="">All Status</option>
+              <option value="pending">Pending</option>
+              <option value="interview">Interview</option>
+              <option value="declined">Declined</option>
+            </select>
+          </div>
+        </div>
+        <div id="jobs-list" class="jobs-grid">
+          <div class="empty-state" id="empty-state">
+            <p>No jobs yet. Add your first application →</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Add Job Panel -->
+      <div id="panel-add" class="panel">
+        <div class="panel-header">
+          <h2 id="form-panel-title">Add Application</h2>
+        </div>
+        <form id="job-form" class="job-form" onsubmit="handleJobSubmit(event)">
+          <input type="hidden" id="edit-job-id" />
+          <div class="form-row">
+            <div class="field-group">
+              <label>Position</label>
+              <input type="text" id="job-position" placeholder="e.g. Backend Developer" required />
+            </div>
+            <div class="field-group">
+              <label>Company</label>
+              <input type="text" id="job-company" placeholder="e.g. Razorpay" required />
+            </div>
+          </div>
+          <div class="form-row">
+            <div class="field-group">
+              <label>Status</label>
+              <select id="job-status">
+                <option value="pending">Pending</option>
+                <option value="interview">Interview</option>
+                <option value="declined">Declined</option>
+              </select>
+            </div>
+            <div class="field-group">
+              <label>Job Type</label>
+              <select id="job-type">
+                <option value="full-time">Full-time</option>
+                <option value="part-time">Part-time</option>
+                <option value="remote">Remote</option>
+                <option value="internship">Internship</option>
+              </select>
+            </div>
+          </div>
+          <div id="job-form-error" class="error-msg hidden"></div>
+          <div class="form-actions">
+            <button type="submit" class="btn-primary" id="job-submit-btn">
+              <span class="btn-text">Add Job</span>
+              <span class="btn-loader hidden"></span>
+            </button>
+            <button type="button" class="btn-ghost" id="cancel-edit-btn" onclick="cancelEdit()" style="display:none">Cancel</button>
+          </div>
+        </form>
+      </div>
+    </main>
+  </div>
+
+  <!-- Delete Confirmation Modal -->
+  <div id="delete-modal" class="modal-overlay hidden">
+    <div class="modal-box">
+      <h3>Delete this job?</h3>
+      <p>This action cannot be undone.</p>
+      <div class="modal-actions">
+        <button class="btn-ghost" onclick="closeDeleteModal()">Cancel</button>
+        <button class="btn-danger" onclick="confirmDelete()">Delete</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Toast -->
+  <div id="toast" class="toast hidden"></div>
+
+  <script src="script.js"></script>
+</body>
+</html>
